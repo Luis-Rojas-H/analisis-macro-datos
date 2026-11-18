@@ -125,7 +125,7 @@ a\~no, mes, \texttt{VARIABLE} (18 tipos), \texttt{DEPENDENCIAS} (53), \texttt{DI
 \toprule
 \rowcolor{uni} \textcolor{white}{\#} & \textcolor{white}{Tipo} & \textcolor{white}{Pregunta} \\
 3.a & MapReduce simple & Mayor/menor valor por tipo de resultado \\
-3.b & MapReduce (acumulador) & Promedio, desviaci\'on, mayor/menor del dinero incautado \\
+3.b & MapReduce (acumulador) & Promedio, mediana, desviaci\'on, mayor/menor del dinero \\
 3.c.1 & \textcolor{job1!80!black}{\textbf{MapReduce triple}} & Desviaci\'on de OPERATIVOS por dependencia vs. promedio nacional \\
 3.c.2 & \textcolor{job2!80!black}{\textbf{MapReduce triple}} & \% de cada droga dentro del total de kilos por regi\'on \\
 3.c.3 & \textcolor{job3!80!black}{\textbf{MapReduce triple}} & Variaci\'on interanual del dinero incautado promedio mensual \\
@@ -152,15 +152,16 @@ CONTRABANDO S/\,513\,820\,390. M\'inimo en los 18 tipos: 0.
 \end{frame}
 
 \begin{frame}[fragile]{3.b -- Estad\'isticos del dinero incautado}
-\respondea{¿Promedio, desviaci\'on, mayor y menor del dinero incautado (soles)?}
+\respondea{¿Promedio, media (mediana), desviaci\'on, mayor y menor del dinero incautado?}
 \campos{VARIABLE = "DINERO INCAUTADO (SOLES)", VALOR}
 \begin{verbatim}
 def combinar(a: Acum, v: Double): Acum =
   (a._1+v, a._2+v*v, a._3+1L, math.max(a._4,v), math.min(a._5,v))
+// mediana: sortBy + dos centrales (n par)
 \end{verbatim}
 \begin{dato}[job2]{Resultado}
-\footnotesize $n=1692$ · promedio S/\,31\,840.98 · desviaci\'on S/\,142\,260.99 · mayor
-S/\,4\,028\,271.78 (coincide exacto con 3.a) · menor S/\,0.00.
+\footnotesize $n=1692$ · promedio S/\,31\,840.98 · mediana S/\,1\,799.30 · desviaci\'on
+S/\,142\,260.99 · mayor S/\,4\,028\,271.78 (coincide con 3.a) · menor S/\,0.00.
 \end{dato}
 \end{frame}
 

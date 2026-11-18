@@ -2,7 +2,7 @@
 // los resultados a Excel usando Spark.
 //
 // Correr: spark-shell --driver-class-path postgresql-42.7.6.jar --jars postgresql-42.7.6.jar
-//         --packages com.crealytics:spark-excel_2.12:3.3.1_0.19.0
+//         --packages com.crealytics:spark-excel_2.12:3.3.2_0.19.0
 //         --driver-java-options "-Dfile.encoding=UTF-8" -i sparksql/6_VistasTemporalesYExcel.scala
 
 val urlJdbc = "jdbc:postgresql://localhost:5432/postgres"

@@ -240,22 +240,24 @@ coincide exactamente con el mayor de la consulta 3.b, lo que confirma que ambas 
 independientemente, miden lo mismo sobre el mismo campo.
 
 \subsection{3.b -- Estad\'isticos del dinero incautado (MapReduce)}
-\textbf{Tipo:} MapReduce con acumulador compuesto (un solo \texttt{aggregate}). \textbf{Pregunta:}
-¿cu\'anto dinero en soles incauta en promedio la PNP por registro, cu\'an dispersos son esos montos, y
-cu\'ales son el mayor y el menor?
+\textbf{Tipo:} MapReduce con acumulador compuesto (\texttt{aggregate}) m\'as un \texttt{sortBy} para
+la mediana. \textbf{Pregunta:} ¿cu\'anto dinero en soles incauta en promedio la PNP por registro, cu\'al
+es la media (mediana), cu\'an dispersos son esos montos, y cu\'ales son el mayor y el menor?
 
-\textbf{Soluci\'on.} Se filtra \texttt{VARIABLE = "DINERO INCAUTADO (SOLES)"} y se reduce con un
-acumulador \texttt{(suma, sumaCuadrados, conteo, m\'aximo, m\'inimo)}, del cual se derivan promedio,
-varianza (poblacional) y desviaci\'on est\'andar.
+\textbf{Soluci\'on.} Se filtra \texttt{VARIABLE = "DINERO INCAUTADO (SOLES)"}. El enunciado pide
+promedio y media por separado: aqu\'i el \textbf{promedio} es la media aritm\'etica y la \textbf{media}
+es la mediana. Un acumulador \texttt{(suma, sumaCuadrados, conteo, m\'aximo, m\'inimo)} da promedio,
+varianza (poblacional), desviaci\'on, mayor y menor; la mediana se obtiene ordenando el RDD y tomando
+el promedio de los dos valores centrales ($n$ par).
 \begin{lstlisting}
 def combinar(a: Acum, v: Double): Acum =
   (a._1 + v, a._2 + v * v, a._3 + 1L, math.max(a._4, v), math.min(a._5, v))
 val promedio = suma / n
-val desviacion = math.sqrt((sumaCuad / n) - (promedio * promedio))
+val mediana = ordenados.filter(idx == n/2-1 || idx == n/2).values.mean()
 \end{lstlisting}
 
-\textbf{Salida:} $n=1692$ registros; promedio S/\,31\,840.98; desviaci\'on est\'andar S/\,142\,260.99;
-mayor S/\,4\,028\,271.78; menor S/\,0.00.
+\textbf{Salida:} $n=1692$ registros; promedio S/\,31\,840.98; mediana S/\,1\,799.30; desviaci\'on
+est\'andar S/\,142\,260.99; mayor S/\,4\,028\,271.78; menor S/\,0.00.
 
 \begin{figure}[H]
 \centering
@@ -263,10 +265,11 @@ mayor S/\,4\,028\,271.78; menor S/\,0.00.
 \caption{Ejecuci\'on real de la consulta 3.b en \texttt{spark-shell}.}
 \end{figure}
 
-\textbf{Interpretaci\'on.} La desviaci\'on est\'andar (S/\,142\,260.99) es m\'as de 4 veces el promedio,
-lo que indica una distribuci\'on muy asim\'etrica: la mayor\'ia de los registros son montos peque\~nos o
-cero, y unos pocos operativos grandes (el m\'aximo de S/\,4 millones) concentran una fracci\'on
-desproporcionada del total incautado.
+\textbf{Interpretaci\'on.} La mediana (S/\,1\,799.30) es mucho menor que el promedio
+(S/\,31\,840.98), y la desviaci\'on (S/\,142\,260.99) es m\'as de 4 veces el promedio: la
+distribuci\'on es muy asim\'etrica. La mayor\'ia de los registros son montos peque\~nos o cero, y unos
+pocos operativos grandes (el m\'aximo de S/\,4 millones) concentran una fracci\'on desproporcionada del
+total incautado.
 
 \subsection{3.c -- Tres consultas con MapReduce triple}
 

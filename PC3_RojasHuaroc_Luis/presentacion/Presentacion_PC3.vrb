@@ -1,0 +1,12 @@
+\frametitle{3.b -- Estad\'isticos del dinero incautado}
+\respondea{¿Promedio, media (mediana), desviaci\'on, mayor y menor del dinero incautado?}
+\campos{VARIABLE = "DINERO INCAUTADO (SOLES)", VALOR}
+\begin{verbatim}
+def combinar(a: Acum, v: Double): Acum =
+  (a._1+v, a._2+v*v, a._3+1L, math.max(a._4,v), math.min(a._5,v))
+// mediana: sortBy + dos centrales (n par)
+\end{verbatim}
+\begin{dato}[job2]{Resultado}
+\footnotesize $n=1692$ · promedio S/\,31\,840.98 · mediana S/\,1\,799.30 · desviaci\'on
+S/\,142\,260.99 · mayor S/\,4\,028\,271.78 (coincide con 3.a) · menor S/\,0.00.
+\end{dato}
