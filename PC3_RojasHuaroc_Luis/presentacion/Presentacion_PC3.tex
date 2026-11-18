@@ -1,0 +1,365 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shadows, fit, backgrounds}
+\usepackage[most]{tcolorbox}
+\usepackage{colortbl}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\definecolor{uni}{RGB}{122,31,43}
+\definecolor{uniink}{RGB}{40,40,40}
+\definecolor{job1}{RGB}{31,91,140}
+\definecolor{job2}{RGB}{24,124,108}
+\definecolor{job3}{RGB}{181,133,36}
+\definecolor{etlE}{RGB}{31,91,140}
+\definecolor{etlT}{RGB}{24,124,108}
+\definecolor{etlL}{RGB}{122,31,43}
+\definecolor{dimcolor}{RGB}{24,124,108}
+\definecolor{factcolor}{RGB}{122,31,43}
+
+\setbeamercolor{palette primary}{bg=uni,fg=white}
+\setbeamercolor{palette secondary}{bg=uni!85!black,fg=white}
+\setbeamercolor{palette tertiary}{bg=uni!70,fg=white}
+\setbeamercolor{palette quaternary}{bg=uni!40,fg=white}
+\setbeamercolor{structure}{fg=uni}
+\setbeamercolor{title}{fg=white,bg=uni}
+\setbeamercolor{frametitle}{fg=white,bg=uni}
+\setbeamercolor{normal text}{fg=uniink}
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=6mm,text margin right=6mm}
+
+\newcommand{\campos}[1]{\textbf{Campos usados:} #1\par\vspace{2pt}}
+\newcommand{\respondea}[1]{\textbf{Responde a:} #1\par\vspace{2pt}}
+
+% caja de dato clave, con color configurable
+\newtcolorbox{dato}[2][uni]{
+  colback=#1!8, colframe=#1, boxrule=0.8pt, arc=3pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt, title={#2},
+  fonttitle=\bfseries\small, coltitle=white, colbacktitle=#1
+}
+
+\title[Operaciones policiales -- Spark/PostgreSQL]{Resultados de las operaciones policiales a nivel nacional}
+\subtitle{An\'alisis con Apache Spark, Scala y PostgreSQL}
+\author[Rojas y Morales]{Luis Antonio Rojas Huaroc \and Breiner Catalino Morales}
+\institute[UNI -- CC531 A]{Universidad Nacional de Ingenier\'ia\\ Facultad de Ciencias\\ CC531 A -- An\'alisis en Macrodatos 2026-2}
+\date{Laboratorio 03}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Qu\'e exige este laboratorio}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\begin{dato}[job1]{Dataset}
+PNDA, categor\'ia \textbf{Seguridad y Justicia}, no usado por otro grupo.
+\end{dato}
+\vspace{4pt}
+\begin{dato}[job2]{Scala + Spark}
+Consultas con \textbf{MapReduce puro} sobre RDD.
+\end{dato}
+\vspace{4pt}
+\begin{dato}[job3]{PostgreSQL}
+Arquitectura de tablas propia + proceso \textbf{ETL} documentado.
+\end{dato}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{dato}[etlL]{Spark SQL}
+API de \texttt{DataFrame} (\texttt{groupBy}, \texttt{join}, funciones) + \textbf{vistas temporales}.
+\end{dato}
+\vspace{4pt}
+\begin{dato}[uni]{Excel}
+Exportar resultados \textbf{usando Spark}.
+\end{dato}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{El dataset: c\'omo lo elegimos}
+\begin{dato}[uni]{Primera opci\'on descartada}
+\emph{Denuncias policiales registradas a nivel nacional} -- ya estaba tomada por otro grupo.
+\end{dato}
+\vspace{6pt}
+\begin{dato}[job2]{Dataset elegido}
+\textbf{Resultados de las operaciones policiales a nivel nacional} [MININTER/CENOPPOL], Observatorio
+Nacional de Seguridad Ciudadana. 3 CSV (2023-2025) combinados: \textbf{30\,456 registros}.
+\end{dato}
+\vspace{6pt}
+\begin{dato}[job1]{Columnas}
+a\~no, mes, \texttt{VARIABLE} (18 tipos), \texttt{DEPENDENCIAS} (53), \texttt{DIR\_REG\_FRE},
+\texttt{VALOR} (decimal real: kilos, soles, personas, unidades).
+\end{dato}
+\end{frame}
+
+\begin{frame}{Entorno instalado}
+\centering
+\begin{tikzpicture}[
+  caja/.style={draw=job1, fill=job1!10, rounded corners, minimum width=3.6cm, minimum height=1.8cm,
+    align=center, font=\small, drop shadow},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.2pt, draw=uni}
+]
+\node[caja] (spark) at (0,0) {\textbf{Apache Spark 3.3.2}\\+ Hadoop 3.3.0\\\textbf{Scala 2.12.15}};
+\node[caja, draw=job2, fill=job2!10] (pg) at (5.2,0) {\textbf{PostgreSQL 15.13}\\(binarios port\'atiles)\\+ driver JDBC 42.7.6};
+\node[caja, draw=job3, fill=job3!10] (sin) at (10.4,0) {\textbf{Sin privilegios}\\\textbf{de administrador}\\versiones port\'atiles};
+\draw[flecha] (spark.east) -- (pg.west);
+\draw[flecha] (pg.east) -- (sin.west);
+\end{tikzpicture}
+\vspace{10pt}
+
+\small Mismas versiones usadas en clase (\texttt{instalacion spark3.3.2.pdf}, \texttt{Semana 11/instalacion.txt}).
+\end{frame}
+
+\begin{frame}{Las cinco consultas RDD / MapReduce}
+\footnotesize
+\begin{tabular}{@{}clp{7.4cm}@{}}
+\toprule
+\rowcolor{uni} \textcolor{white}{\#} & \textcolor{white}{Tipo} & \textcolor{white}{Pregunta} \\
+3.a & MapReduce simple & Mayor/menor valor por tipo de resultado \\
+3.b & MapReduce (acumulador) & Promedio, desviaci\'on, mayor/menor del dinero incautado \\
+3.c.1 & \textcolor{job1!80!black}{\textbf{MapReduce triple}} & Desviaci\'on de OPERATIVOS por dependencia vs. promedio nacional \\
+3.c.2 & \textcolor{job2!80!black}{\textbf{MapReduce triple}} & \% de cada droga dentro del total de kilos por regi\'on \\
+3.c.3 & \textcolor{job3!80!black}{\textbf{MapReduce triple}} & Variaci\'on interanual del dinero incautado promedio mensual \\
+\bottomrule
+\end{tabular}
+
+\vspace{10pt}
+\small \textcolor{job1!80!black}{$\blacksquare$} Job 1: mapea y agrega \quad
+\textcolor{job2!80!black}{$\blacksquare$} Job 2: calcula el agregado global \quad
+\textcolor{job3!80!black}{$\blacksquare$} Job 3: combina y ordena el resultado final
+\end{frame}
+
+\begin{frame}[fragile]{3.a -- Mayor/menor por tipo (MapReduce)}
+\respondea{¿Cu\'al es el mayor y menor valor hist\'orico (2023-2025) de cada tipo de resultado?}
+\campos{VARIABLE, VALOR}
+\begin{verbatim}
+val pares = datos.map(_.split(",")).map(c => (c(2), c(5).toDouble))
+val maxPorTipo = pares.reduceByKey((a, b) => math.max(a, b))
+\end{verbatim}
+\begin{dato}[uni]{Resultado}
+\footnotesize M\'aximos: DINERO INCAUTADO S/\,4\,028\,271.78; MARIHUANA (KILOS) 29\,924.75\,kg;
+CONTRABANDO S/\,513\,820\,390. M\'inimo en los 18 tipos: 0.
+\end{dato}
+\end{frame}
+
+\begin{frame}[fragile]{3.b -- Estad\'isticos del dinero incautado}
+\respondea{¿Promedio, desviaci\'on, mayor y menor del dinero incautado (soles)?}
+\campos{VARIABLE = "DINERO INCAUTADO (SOLES)", VALOR}
+\begin{verbatim}
+def combinar(a: Acum, v: Double): Acum =
+  (a._1+v, a._2+v*v, a._3+1L, math.max(a._4,v), math.min(a._5,v))
+\end{verbatim}
+\begin{dato}[job2]{Resultado}
+\footnotesize $n=1692$ · promedio S/\,31\,840.98 · desviaci\'on S/\,142\,260.99 · mayor
+S/\,4\,028\,271.78 (coincide exacto con 3.a) · menor S/\,0.00.
+\end{dato}
+\end{frame}
+
+\begin{frame}{3.c.1 -- Desviaci\'on de OPERATIVOS por dependencia}
+\respondea{¿Qu\'e dependencias reportan muchos m\'as/menos operativos que el promedio nacional?}
+\centering
+\begin{tikzpicture}[
+  job/.style={draw, rounded corners, minimum width=3.5cm, minimum height=1.3cm, align=center,
+    font=\scriptsize, drop shadow, text width=3.3cm},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.2pt, draw=uniink}
+]
+\node[job, draw=job1, fill=job1!12] (j1) at (0,0) {\textbf{Job 1}\\suma + conteo\\por dependencia};
+\node[job, draw=job2, fill=job2!12] (j2) at (4.6,0) {\textbf{Job 2}\\promedio\\nacional};
+\node[job, draw=job3, fill=job3!12] (j3) at (9.2,0) {\textbf{Job 3}\\desviaci\'on\\ordenada};
+\draw[flecha] (j1.east) -- (j2.west);
+\draw[flecha] (j2.east) -- (j3.west);
+\end{tikzpicture}
+\vspace{10pt}
+
+\begin{dato}[job3]{Resultado}
+\footnotesize Promedio nacional: \textbf{2070.90} operativos/registro. Mayor desviaci\'on:
+\textbf{RP Lima} ($+10\,606.94$), RP Cusco ($+6080.13$), RP Ancash ($+3976.21$). DIRFAM: $-2070.90$
+(0 operativos).
+\end{dato}
+\end{frame}
+
+\begin{frame}{3.c.2 -- \% de cada droga por regi\'on/frente}
+\respondea{¿Qu\'e droga predomina en cada regi\'on/frente, en kilos?}
+\centering
+\begin{tikzpicture}[
+  job/.style={draw, rounded corners, minimum width=3.5cm, minimum height=1.3cm, align=center,
+    font=\scriptsize, drop shadow, text width=3.3cm},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.2pt, draw=uniink}
+]
+\node[job, draw=job1, fill=job1!12] (j1) at (0,0) {\textbf{Job 1}\\suma de kilos\\por (regi\'on, droga)};
+\node[job, draw=job2, fill=job2!12] (j2) at (4.6,0) {\textbf{Job 2}\\total de kilos\\por regi\'on};
+\node[job, draw=job3, fill=job3!12] (j3) at (9.2,0) {\textbf{Job 3}\\porcentaje\\por regi\'on};
+\draw[flecha] (j1.east) -- (j2.west);
+\draw[flecha] (j2.east) -- (j3.west);
+\end{tikzpicture}
+\vspace{10pt}
+
+\small
+\begin{tabular}{@{}llrr@{}}
+\toprule
+\rowcolor{uni} \textcolor{white}{Regi\'on/Frente} & \textcolor{white}{Droga predominante} & \textcolor{white}{Kilos} & \textcolor{white}{\%}\\
+DIRNIC & Marihuana & 141\,030.07 & 36.38\%\\
+Frente & CC (clorhidrato) & 11\,501.08 & 83.14\%\\
+Regi\'on & Marihuana & 91\,960.67 & 82.67\%\\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{3.c.3 -- Variaci\'on interanual del dinero incautado}
+\respondea{¿Creci\'o o cay\'o el dinero incautado promedio mensual, 2023-2025?}
+\centering
+\begin{tikzpicture}[
+  job/.style={draw, rounded corners, minimum width=3.5cm, minimum height=1.3cm, align=center,
+    font=\scriptsize, drop shadow, text width=3.3cm},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.2pt, draw=uniink}
+]
+\node[job, draw=job1, fill=job1!12] (j1) at (0,0) {\textbf{Job 1}\\suma + conteo\\por a\~no};
+\node[job, draw=job2, fill=job2!12] (j2) at (4.6,0) {\textbf{Job 2}\\promedio\\mensual};
+\node[job, draw=job3, fill=job3!12] (j3) at (9.2,0) {\textbf{Job 3}\\\% variaci\'on\\interanual};
+\draw[flecha] (j1.east) -- (j2.west);
+\draw[flecha] (j2.east) -- (j3.west);
+\end{tikzpicture}
+\vspace{10pt}
+
+\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+\rowcolor{uni} \textcolor{white}{A\~no} & \textcolor{white}{Suma (S/)} & \textcolor{white}{Prom. mensual (S/)} & \textcolor{white}{\% variaci\'on}\\
+2023 & 11\,704\,529 & 975\,377 & --\\
+2024 & 25\,880\,606 & 2\,156\,717 & \textcolor{job2!70!black}{\textbf{$+121.12\%$}}\\
+2025 & 16\,289\,795 & 1\,357\,483 & \textcolor{uni}{\textbf{$-37.06\%$}}\\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Arquitectura de la base de datos: esquema en estrella}
+\centering
+\begin{tikzpicture}[
+  dim/.style={draw=dimcolor, fill=dimcolor!10, rectangle, rounded corners, minimum width=3.6cm,
+    align=left, font=\scriptsize, drop shadow},
+  fact/.style={draw=factcolor, fill=factcolor!10, rectangle, rounded corners, minimum width=4cm,
+    align=left, font=\scriptsize, drop shadow, line width=1.1pt},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.3pt, draw=uniink}
+]
+\node[dim] (dep) at (0,0) {
+  \textbf{\textcolor{dimcolor}{dim\_dependencia}}\\ \underline{dependencia\_id}\\ nombre\\ dir\_reg\_fre};
+\node[fact] (hecho) at (5,0) {
+  \textbf{\textcolor{factcolor}{hecho\_resultado\_operativo}}\\ \underline{id}\\ anio, mes\\
+  dependencia\_id (FK)\\ variable\_id (FK)\\ valor};
+\node[dim] (var) at (10,0) {
+  \textbf{\textcolor{dimcolor}{dim\_variable}}\\ \underline{variable\_id}\\ nombre\\ categoria\\ unidad};
+\draw[flecha] (dep.east) -- (hecho.west) node[midway, above, font=\scriptsize, fill=white] {1:N};
+\draw[flecha] (var.west) -- (hecho.east) node[midway, above, font=\scriptsize, fill=white] {1:N};
+\end{tikzpicture}
+\vspace{10pt}
+
+\small \textcolor{dimcolor}{$\blacksquare$} Dimensiones (53 + 18 filas) \qquad
+\textcolor{factcolor}{$\blacksquare$} Tabla de hechos (30\,456 filas)
+\end{frame}
+
+\begin{frame}{ETL: Extract -- Transform -- Load}
+\centering
+\begin{tikzpicture}[
+  caja/.style={draw, rounded corners, minimum width=3.6cm, minimum height=2.6cm, align=left,
+    font=\scriptsize, text width=3.4cm, drop shadow},
+  flecha/.style={-{Latex[length=3mm]}, line width=1.4pt, draw=uniink}
+]
+\node[caja, draw=etlE, fill=etlE!10] (e) at (0,0) {
+  \centering\textbf{\textcolor{etlE}{EXTRACT}}\\[3pt]
+  \raggedright 3 CSV de la PNDA (2023-2025), combinados en 30\,456 filas.};
+\node[caja, draw=etlT, fill=etlT!10] (t) at (4.6,0) {
+  \centering\textbf{\textcolor{etlT}{TRANSFORM}}\\[3pt]
+  \raggedright Correcci\'on de 432 filas; \texttt{categoria}/\texttt{unidad} derivadas; llaves con
+  \texttt{row\_number()}.};
+\node[caja, draw=etlL, fill=etlL!10] (l) at (9.2,0) {
+  \centering\textbf{\textcolor{etlL}{LOAD}}\\[3pt]
+  \raggedright 3 tablas escritas a PostgreSQL por JDBC (\texttt{df.write.format("jdbc")}).};
+\draw[flecha] (e.east) -- (t.west);
+\draw[flecha] (t.east) -- (l.west);
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Evidencia: ETL y base de datos funcionando}
+\centering
+\includegraphics[width=0.78\linewidth]{db_tablas_conteo.png}
+\end{frame}
+
+\begin{frame}{Spark SQL -- API de DataFrame (5.a -- 5.b)}
+\begin{dato}[job1]{5.a -- groupBy + filter (4 consultas)}
+Suma por (a\~no,categor\'ia); conteo por (dependencia,mes); kilos por (regi\'on,categor\'ia); total por
+(a\~no,unidad).
+\end{dato}
+\vspace{10pt}
+\begin{dato}[job2]{5.b -- promedio + orderBy}
+Promedio de \texttt{valor} por categor\'ia; dependencias ordenadas por suma total desc (DIRPOFIS
+S/\,629.8M lidera).
+\end{dato}
+\end{frame}
+
+\begin{frame}{Spark SQL -- API de DataFrame (5.c -- 5.d)}
+\begin{dato}[job3]{5.c -- los 4 tipos de join}
+\texttt{inner}/\texttt{left}/\texttt{right}/\texttt{full} -- los 4 devuelven 30\,456 filas,
+\textbf{0 registros hu\'erfanos}.
+\end{dato}
+\vspace{10pt}
+\begin{dato}[uni]{5.d -- functions.\_ (4 consultas)}
+\texttt{round(avg)}; \texttt{when/otherwise} en rangos; \texttt{concat\_ws}; \texttt{stddev} por
+categor\'ia.
+\end{dato}
+\end{frame}
+
+\begin{frame}{Vistas temporales + SQL puro (5.e -- 5.f)}
+\begin{dato}[job1]{5.e -- 3 joins (objetivos distintos a 5.c)}
+Dinero por dependencia+a\~no (INNER); operativos por dependencia (LEFT); variables sin uso en 2025
+(FULL -- ninguna).
+\end{dato}
+\vspace{10pt}
+\begin{dato}[job2]{5.f -- 3 ORDER BY + filtro}
+Armas de mayor a menor; regi\'on 2025 de mayor a menor; dinero $>0$ de menor a mayor.
+\end{dato}
+\end{frame}
+
+\begin{frame}{Exportaci\'on a Excel con Spark (5.g)}
+\begin{dato}[job3]{5.g -- Excel con Spark}
+Resultados de 5.e y 5.f exportados con \texttt{spark-excel}, una hoja por consulta, 2 archivos de 3
+hojas cada uno.
+\end{dato}
+\vspace{10pt}
+\centering
+\includegraphics[width=0.75\linewidth]{img_excel.png}
+\end{frame}
+
+\begin{frame}{Conclusiones (1/2)}
+\begin{dato}[uni]{1}
+5 consultas RDD/MapReduce + 18 consultas Spark SQL (DataFrame + vistas temporales), todas sobre 30\,456
+registros reales de operaciones policiales 2023-2025.
+\end{dato}
+\vspace{10pt}
+\begin{dato}[job1]{2}
+Esquema en estrella en PostgreSQL poblado por un ETL completo en Scala/Spark, con correcci\'on de un
+problema real de calidad de datos.
+\end{dato}
+\end{frame}
+
+\begin{frame}{Conclusiones (2/2)}
+\begin{dato}[job2]{3}
+Verificaci\'on cruzada: el m\'aximo de dinero incautado coincide exacto entre dos consultas
+independientes; los 4 joins no encuentran registros hu\'erfanos.
+\end{dato}
+\vspace{10pt}
+\begin{dato}[job3]{4}
+El dinero incautado promedio mensual creci\'o 121\,\% en 2024 y cay\'o 37\,\% en 2025 -- alta
+volatilidad, consistente con su desviaci\'on est\'andar.
+\end{dato}
+\end{frame}
+
+\end{document}

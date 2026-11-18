@@ -1,0 +1,352 @@
+﻿spark-shell.cmd : Setting default log level to "WARN".
+En línea: 7 Carácter: 1
++ & "C:\spark\bin\spark-shell.cmd" --driver-class-path $jar --jars $jar ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Setting default log level to "WARN".:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+26/11/17 20:03:04 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+Spark context Web UI available at http://DESKTOP-9KI29CU:4041
+Spark context available as 'sc' (master = local[*], app id = local-1794963784322).
+Spark session available as 'spark'.
+
+[Stage 0:>                                                          (0 + 1) / 1]
+
+[Stage 0:>                  (0 + 1) / 1][Stage 1:>                  (0 + 1) / 1]
+
+[Stage 2:===>                                                   (11 + 12) / 200]
+
+[Stage 2:=======>                                               (29 + 12) / 200]
+
+[Stage 2:==============>                                        (52 + 12) / 200]
+
+[Stage 2:==================================>                   (126 + 12) / 200]
+
+[Stage 4:=================>                                     (62 + 12) / 200]
+
+[Stage 4:==============================>                       (112 + 12) / 200]
+
+26/11/17 20:03:14 WARN ProcfsMetricsGetter: Exception when trying to compute pagesize, as a result reporting of ProcessTree metrics is stopped
+[Stage 4:===========================================>          (162 + 12) / 200]
+
+=== Filas en detalleDF: 30456 ===
+
+--- 5a.1: suma de valor por (anio, categoria), filtrando valor > 0 ---
+                                                                                
+
+[Stage 15:=============================================>       (171 + 12) / 200]
+
++----+----------------------+-------------+
+|anio|categoria             |suma_valor   |
++----+----------------------+-------------+
+|2023|Arma                  |10005.000    |
+|2023|Contrabando           |342782251.974|
+|2023|Detenido              |338662.000   |
+|2023|Dinero                |11704529.385 |
+|2023|Droga                 |2318603.964  |
+|2023|Infracción de tránsito|851934.000   |
+|2023|Migración             |71226.000    |
+|2023|Operativo             |1269937.000  |
+|2023|Organización criminal |11860.000    |
+|2024|Arma                  |15967.000    |
+|2024|Contrabando           |838490746.640|
+|2024|Detenido              |362825.000   |
+|2024|Dinero                |25880605.540 |
+|2024|Droga                 |2502236.731  |
+|2024|Infracción de tránsito|1101620.000  |
+|2024|Migración             |54176.000    |
+|2024|Operativo             |1110260.000  |
+|2024|Organización criminal |13260.000    |
+|2025|Arma                  |13345.000    |
+|2025|Contrabando           |450543150.400|
+|2025|Detenido              |360152.000   |
+|2025|Dinero                |16289794.787 |
+|2025|Droga                 |2766051.862  |
+|2025|Infracción de tránsito|1335803.000  |
+|2025|Migración             |67310.000    |
+|2025|Operativo             |1123761.000  |
+|2025|Organización criminal |13683.000    |
++----+----------------------+-------------+
+
+
+--- 5a.2: conteo de registros por (dependencia, mes), filtrando anio = 2024 ---
+                                                                                
+
+[Stage 26:===========================>                         (102 + 12) / 200]
+
+[Stage 26:=============================>                       (111 + 12) / 200]
+
+[Stage 26:=======================================>             (150 + 12) / 200]
+
+[Stage 26:====================================================> (194 + 6) / 200]
+
+[Stage 26:=====================================================>(198 + 2) / 200]
+
++---------------+---+-----------+
+|dependencia    |mes|n_registros|
++---------------+---+-----------+
+|DIRSEINT       |MAR|18         |
+|DIRINCRI       |SET|18         |
+|TCIU           |JUN|18         |
+|DIRTTSV        |ENE|18         |
+|RP LIMA        |DIC|18         |
+|DIRINCRI       |JUL|18         |
+|RP LAMBAYEQUE  |NOV|18         |
+|RP TACNA       |DIC|18         |
+|FP TUMBES      |MAY|18         |
+|DIROPESP       |JUL|18         |
+|RP SAN MARTIN  |NOV|18         |
+|RP AREQUIPA    |NOV|18         |
+|RP PUNO        |SET|18         |
+|RP TACNA       |OCT|18         |
+|RP AREQUIPA    |AGO|18         |
+|DIRCTPTIM      |JUN|18         |
+|RP LORETO      |DIC|18         |
+|RP SAN MARTIN  |JUL|18         |
+|RP CUSCO       |AGO|18         |
+|RP HUANCAVELICA|ABR|18         |
++---------------+---+-----------+
+only showing top 20 rows
+
+
+--- 5a.3: suma de kilos por (dir_reg_fre, categoria), filtrando unidad = 'Kilos' ---
++-----------+---------+----------+
+|dir_reg_fre|categoria|kilos     |
++-----------+---------+----------+
+|DIRNIC     |Droga    |387608.205|
+|Región     |Droga    |111243.593|
+|Frente     |Droga    |13833.493 |
+|DIRNOS     |Droga    |6109.266  |
++-----------+---------+----------+
+
+
+--- 5a.4: total por (anio, unidad), filtrando categoria = 'Droga' ---
++----+-----------+-----------+
+|anio|unidad     |total      |
++----+-----------+-----------+
+|2023|Envoltorios|2199258.000|
+|2023|Kilos      |119345.964 |
+|2024|Envoltorios|2284664.000|
+|2024|Kilos      |217572.731 |
+|2025|Envoltorios|2584176.000|
+|2025|Kilos      |181875.862 |
++----+-----------+-----------+
+
+
+--- 5b.1: promedio de valor por categoria ---
++----------------------+--------------+
+|categoria             |promedio_valor|
++----------------------+--------------+
+|Arma                  |11.6184988    |
+|Contrabando           |964430.3481170|
+|Detenido              |209.1487392   |
+|Dinero                |31840.9750071 |
+|Droga                 |747.3298421   |
+|Infracción de tránsito|1944.0644208  |
+|Migración             |113.8959811   |
+|Operativo             |2070.8971631  |
+|Organización criminal |11.4666076    |
++----------------------+--------------+
+
+
+--- 5b.2: dependencias ordenadas por suma total de valor, descendente ---
++-------------+-------------+
+|dependencia  |total_valor  |
++-------------+-------------+
+|DIRPOFIS     |629764354.070|
+|RP PUNO      |625303995.959|
+|RP TACNA     |107962632.046|
+|DIVIAC       |72921809.107 |
+|RP AREQUIPA  |38511468.277 |
+|RP CUSCO     |34119057.670 |
+|DIRTTSV      |29858004.591 |
+|RP MOQUEGUA  |20762598.573 |
+|RP PIURA     |16865209.778 |
+|FP TUMBES    |13720340.494 |
+|RP LAMBAYEQUE|10668065.323 |
+|DIRANDRO     |9688585.264  |
+|RP JUNIN     |9599914.699  |
+|DIRILA       |9254744.955  |
+|RP TUMBES    |8623021.858  |
+|RP LIMA      |7587887.226  |
+|RP AYACUCHO  |7181836.885  |
+|RP SAN MARTIN|6067588.351  |
+|RP LORETO    |5637316.478  |
+|DIRINCRI     |4069935.457  |
++-------------+-------------+
+only showing top 20 rows
+
+
+--- 5c.1: INNER join hecho x dim_variable ---
+filas inner: 30456
++----+---+-----------+-------------+---------+-------+
+|anio|mes|variable_id|nombre       |categoria|valor  |
++----+---+-----------+-------------+---------+-------+
+|2023|MAY|1          |ARMAS BLANCAS|Arma     |1.000  |
+|2023|JUN|1          |ARMAS BLANCAS|Arma     |0.000  |
+|2023|MAR|1          |ARMAS BLANCAS|Arma     |197.000|
+|2023|MAR|1          |ARMAS BLANCAS|Arma     |0.000  |
+|2023|MAY|1          |ARMAS BLANCAS|Arma     |0.000  |
++----+---+-----------+-------------+---------+-------+
+only showing top 5 rows
+
+
+--- 5c.2: LEFT OUTER join dim_dependencia x hecho (detecta dependencias sin registros) ---
+filas left_outer: 30456
+dependencias sin ningun registro: 0
+
+--- 5c.3: RIGHT OUTER join hecho x dim_dependencia ---
+filas right_outer: 30456
+
+--- 5c.4: FULL OUTER join dim_variable x hecho (detecta variables sin uso) ---
+filas full_outer: 30456
+variables sin ningun registro: 0
+
+--- 5d.1: round(avg(valor), 2) por categoria ---
++----------------------+-------------------+
+|categoria             |promedio_redondeado|
++----------------------+-------------------+
+|Arma                  |11.62              |
+|Contrabando           |964430.35          |
+|Detenido              |209.15             |
+|Dinero                |31840.98           |
+|Droga                 |747.33             |
+|Infracción de tránsito|1944.06            |
+|Migración             |113.90             |
+|Operativo             |2070.90            |
+|Organización criminal |11.47              |
++----------------------+-------------------+
+
+
+--- 5d.2: clasificacion de valor en rangos con when/otherwise ---
++--------------+-----+
+|rango_valor   |count|
++--------------+-----+
+|alto          |1212 |
+|bajo          |10520|
+|medio         |6587 |
+|sin incidencia|12137|
++--------------+-----+
+
+
+--- 5d.3: etiqueta con concat_ws(dependencia - mes - anio) ---
++-------------------------+----------------------+-------+
+|etiqueta                 |variable              |valor  |
++-------------------------+----------------------+-------+
+|RP CAJAMARCA - FEB - 2025|MARIHUANA (ENVOLTORIO)|93.000 |
+|RP CAJAMARCA - NOV - 2025|MARIHUANA (ENVOLTORIO)|156.000|
+|RP CAJAMARCA - MAR - 2025|MARIHUANA (ENVOLTORIO)|377.000|
+|RP CAJAMARCA - JUL - 2025|MARIHUANA (ENVOLTORIO)|55.000 |
+|RP CAJAMARCA - DIC - 2025|MARIHUANA (ENVOLTORIO)|161.000|
+|RP CAJAMARCA - ENE - 2025|MARIHUANA (ENVOLTORIO)|152.000|
+|RP CAJAMARCA - OCT - 2025|MARIHUANA (ENVOLTORIO)|359.000|
+|RP CAJAMARCA - AGO - 2025|MARIHUANA (ENVOLTORIO)|183.000|
+|RP CAJAMARCA - MAY - 2025|MARIHUANA (ENVOLTORIO)|875.000|
+|RP CAJAMARCA - ABR - 2025|MARIHUANA (ENVOLTORIO)|111.000|
++-------------------------+----------------------+-------+
+only showing top 10 rows
+
+
+--- 5d.4: desviacion estandar (stddev) de valor por categoria ---
++----------------------+--------------+
+|categoria             |desviacion_std|
++----------------------+--------------+
+|Arma                  |53.6          |
+|Contrabando           |1.299607805E7 |
+|Detenido              |545.05        |
+|Dinero                |142303.05     |
+|Droga                 |7333.15       |
+|Infracción de tránsito|8363.94       |
+|Migración             |375.82        |
+|Operativo             |2709.16       |
+|Organización criminal |41.48         |
++----------------------+--------------+
+
+CONSULTAS_5A_5D_OK
+26/11/17 20:03:25 WARN SparkEnv: Exception while deleting Spark temp dir: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c\userFiles-880325d8-3e94-494d-b4bc-b722b19f1413
+java.io.IOException: Failed to delete: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c\userFiles-880325d8-3e94-494d-b4bc-b722b19f1413\postgresql-42.7.6.jar
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:144)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:128)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:91)
+	at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1206)
+	at org.apache.spark.SparkEnv.stop(SparkEnv.scala:108)
+	at org.apache.spark.SparkContext.$anonfun$stop$23(SparkContext.scala:2150)
+	at org.apache.spark.util.Utils$.tryLogNonFatalError(Utils.scala:1484)
+	at org.apache.spark.SparkContext.stop(SparkContext.scala:2150)
+	at org.apache.spark.SparkContext.$anonfun$new$35(SparkContext.scala:670)
+	at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:2066)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at scala.util.Try$.apply(Try.scala:213)
+	at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+	at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+26/11/17 20:03:25 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c\userFiles-880325d8-3e94-494d-b4bc-b722b19f1413
+java.io.IOException: Failed to delete: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c\userFiles-880325d8-3e94-494d-b4bc-b722b19f1413\postgresql-42.7.6.jar
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:144)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:128)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:91)
+	at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1206)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+	at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+	at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+	at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:2066)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at scala.util.Try$.apply(Try.scala:213)
+	at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+	at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+26/11/17 20:03:25 ERROR ShutdownHookManager: Exception while deleting Spark temp dir: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c
+java.io.IOException: Failed to delete: C:\Users\User\AppData\Local\Temp\spark-64ac785e-01c3-4c99-ad9f-f51d5e2c3c2c\userFiles-880325d8-3e94-494d-b4bc-b722b19f1413\postgresql-42.7.6.jar
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:144)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:128)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursivelyUsingJavaIO(JavaUtils.java:128)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:118)
+	at org.apache.spark.network.util.JavaUtils.deleteRecursively(JavaUtils.java:91)
+	at org.apache.spark.util.Utils$.deleteRecursively(Utils.scala:1206)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4(ShutdownHookManager.scala:65)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$4$adapted(ShutdownHookManager.scala:62)
+	at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+	at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.ArrayOps$ofRef.foreach(ArrayOps.scala:198)
+	at org.apache.spark.util.ShutdownHookManager$.$anonfun$new$2(ShutdownHookManager.scala:62)
+	at org.apache.spark.util.SparkShutdownHook.run(ShutdownHookManager.scala:214)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$2(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:2066)
+	at org.apache.spark.util.SparkShutdownHookManager.$anonfun$runAll$1(ShutdownHookManager.scala:188)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at scala.util.Try$.apply(Try.scala:213)
+	at org.apache.spark.util.SparkShutdownHookManager.runAll(ShutdownHookManager.scala:188)
+	at org.apache.spark.util.SparkShutdownHookManager$$anon$2.run(ShutdownHookManager.scala:178)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+                                                                                
